@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ product.title }} - In Beauty</title>
+    <style>
+      body {
+        font-family: "Helvetica", sans-serif;
+        margin: 0;
+        padding: 60px 10%;
+      }
+      .back {
+        text-decoration: none;
+        color: #000;
+        font-weight: bold;
+        font-size: 12px;
+        letter-spacing: 2px;
+        border-bottom: 1px solid #000;
+      }
+      .content {
+        display: flex;
+        gap: 80px;
+        margin-top: 40px;
+      }
+      .image {
+        flex: 1.2;
+      }
+      .image img {
+        width: 100%;
+        border-radius: 2px;
+      }
+      .desc {
+        flex: 1;
+      }
+      .price {
+        font-size: 32px;
+        margin: 20px 0;
+        font-weight: 300;
+      }
+      .btn {
+        background: #000;
+        color: #fff;
+        padding: 20px;
+        width: 100%;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        letter-spacing: 3px;
+      }
+      .log-section {
+        margin-top: 80px;
+        border-top: 1px solid #eee;
+        padding-top: 40px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+        margin-top: 15px;
+      }
+      th,
+      td {
+        border: 1px solid #f2f2f2;
+        padding: 15px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/" class="back">BACK TO COLLECTIONS</a>
+    <div class="content">
+      <div class="image"><img src="{{ product.thumbnail }}" /></div>
+      <div class="desc">
+        <div style="font-size: 12px; color: #999; text-transform: uppercase">
+          {{ product.category }}
+        </div>
+        <h1 style="text-transform: uppercase; letter-spacing: 1px">
+          {{ product.title }}
+        </h1>
+        <div class="price">
+          IDR {{ "{:,.0f}".format(product.price * 15500) }}
+        </div>
+        <p style="color: #666; line-height: 1.8">{{ product.description }}</p>
+        <button class="btn">ADD TO BAG</button>
+        <div class="log-section">
+          <h3 style="font-size: 13px; letter-spacing: 1px">RECENT VISITS</h3>
+          <table>
+            <tr>
+              <th>Time</th>
+              <th>IP Address</th>
+              <th>Device</th>
+            </tr>
+            {% for log in logs %} {% if log.product_name == product.title %}
+            <tr>
+              <td>{{ log.time }}</td>
+              <td>{{ log.ip }}</td>
+              <td>{{ log.browser }}...</td>
+            </tr>
+            {% endif %} {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
