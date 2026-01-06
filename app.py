@@ -1,59 +1,101 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 import requests
 from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = "inbeauty_secret_key"
 
-class InBeautyService:
-    def __init__(self):
-        self.base_url = "https://dummyjson.com/products"
-        self.access_logs = []
+BASE_URL = "https://dummyjson.com/products"
+LOGS = []
 
-    def get_filtered_products(self, search_query=None):
-        response = requests.get(f"{self.base_url}?limit=100")
-        all_products = response.json().get('products', [])
-        
-        allowed_categories = [
-            'beauty', 'fragrances', 'womens-dresses', 
-            'womens-shoes', 'womens-watches', 'womens-bags', 'womens-jewellery'
-        ]
-        
-        filtered = [p for p in all_products if p['category'] in allowed_categories]
-        
-        if search_query:
-            filtered = [p for p in filtered if search_query.lower() in p['title'].lower()]
-            
-        return filtered
+ALLOWED_CATEGORIES = [
+    "beauty",
+    "fragrances",
+    "womens-dresses",
+    "womens-shoes",
+    "womens-watches",
+    "womens-bags",
+    "womens-jewellery",
+]
 
-    def get_detail(self, product_id):
-        response = requests.get(f"{self.base_url}/{product_id}")
-        product = response.json()
-        
-        user_info = {
-            "product_name": product.get('title'),
-            "ip": request.remote_addr,
-            "browser": request.headers.get('User-Agent')[:50],
-            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-        self.access_logs.insert(0, user_info)
-        return product
 
-service = InBeautyService()
+def get_products():
+    res = requests.get(f"{BASE_URL}?limit=100")
+    products = res.json()["products"]
+    return [p for p in products if p["category"] in ALLOWED_CATEGORIES]
 
-@app.route('/')
+
+def get_product(product_id):
+    return requests.get(f"{BASE_URL}/{product_id}").json()
+
+
+@app.route("/")
 def index():
-    query = request.args.get('search')
-    products = service.get_filtered_products(query)
-    return render_template('index.html', products=products)
+    query = request.args.get("search", "")
+    products = get_products()
 
-@app.route('/product/<int:id>')
+    if query:
+        products = [p for p in products if query.lower() in p["title"].lower()]
+
+    return render_template("index.html", products=products)
+
+
+@app.route("/product/<int:id>")
 def detail(id):
-    product = service.get_detail(id)
-    return render_template('detail.html', product=product, logs=service.access_logs)
+    product = get_product(id)
 
-@app.route('/admin/logs')
+    LOGS.insert(0, {
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "product": product["title"],
+        "ip": request.remote_addr,
+        "browser": request.headers.get("User-Agent")[:40]
+    })
+
+    return render_template("detail.html", product=product)
+
+
+@app.route("/add-to-cart/<int:id>")
+def add_to_cart(id):
+    product = get_product(id)
+    cart = session.get("cart", [])
+
+    for item in cart:
+        if item["id"] == id:
+            item["quantity"] += 1
+            break
+    else:
+        cart.append({
+            "id": id,
+            "title": product["title"],
+            "price": product["price"],
+            "thumbnail": product["thumbnail"],
+            "quantity": 1
+        })
+
+    session["cart"] = cart
+    flash("Produk berhasil masuk ke keranjang ✅")
+    return redirect(request.referrer or "/")
+
+
+@app.route("/cart")
+def cart():
+    cart = session.get("cart", [])
+    total = sum(item["price"] * item["quantity"] for item in cart)
+    return render_template("cart.html", cart=cart, total=total)
+
+
+@app.route("/remove-cart/<int:id>")
+def remove_cart(id):
+    cart = session.get("cart", [])
+    cart = [item for item in cart if item["id"] != id]
+    session["cart"] = cart
+    return redirect(url_for("cart"))
+
+
+@app.route("/admin/logs")
 def admin_logs():
-    return render_template('admin.html', logs=service.access_logs)
+    return render_template("admin/logs.html", logs=LOGS)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)
