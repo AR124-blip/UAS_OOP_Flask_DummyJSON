@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block content %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin.css') }}"
+/>
+<a href="/admin/stats" style="display:inline-block; margin-bottom:15px;">
+    📊 Lihat Statistik
+</a>
+
+
+<h2 class="admin-title">Admin Activity Logs</h2>
+
+{% if logs %}
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>Time</th>
+      <th>Action</th>
+      <th>Product</th>
+      <th>IP Address</th>
+      <th>Browser</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ log.time }}</td>
+      <td>
+        {% if log.action == "ADD TO CART" %} 🛒 {{ log.action }} {% else %} 👁️
+        {{ log.action }} {% endif %}
+      </td>
+      <td>{{ log.product }}</td>
+      <td>{{ log.ip }}</td>
+      <td>{{ log.browser }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty-log">Belum ada aktivitas user.</p>
+{% endif %} {% endblock %}

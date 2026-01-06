@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 import requests
 from datetime import datetime
+from collections import Counter
 
 app = Flask(__name__)
 app.secret_key = "inbeauty_secret_key"
@@ -44,8 +45,10 @@ def index():
 def detail(id):
     product = get_product(id)
 
+    # LOG VIEW PRODUCT
     LOGS.insert(0, {
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "action": "VIEW PRODUCT",
         "product": product["title"],
         "ip": request.remote_addr,
         "browser": request.headers.get("User-Agent")[:40]
@@ -73,6 +76,16 @@ def add_to_cart(id):
         })
 
     session["cart"] = cart
+
+    # LOG ADD TO CART
+    LOGS.insert(0, {
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "action": "ADD TO CART",
+        "product": product["title"],
+        "ip": request.remote_addr,
+        "browser": request.headers.get("User-Agent")[:40]
+    })
+
     flash("Produk berhasil masuk ke keranjang ✅")
     return redirect(request.referrer or "/")
 
@@ -95,6 +108,24 @@ def remove_cart(id):
 @app.route("/admin/logs")
 def admin_logs():
     return render_template("admin/logs.html", logs=LOGS)
+
+@app.route("/admin/stats")
+def admin_stats():
+    view_counter = Counter()
+    cart_counter = Counter()
+
+    for log in LOGS:
+        if log["action"] == "VIEW PRODUCT":
+            view_counter[log["product"]] += 1
+        elif log["action"] == "ADD TO CART":
+            cart_counter[log["product"]] += 1
+
+    return render_template(
+        "admin/stats.html",
+        view_stats=view_counter.most_common(5),
+        cart_stats=cart_counter.most_common(5),
+        total_logs=len(LOGS)
+    )
 
 
 if __name__ == "__main__":

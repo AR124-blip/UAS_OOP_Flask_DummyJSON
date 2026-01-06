@@ -1,0 +1,55 @@
+{% extends "base.html" %} {% block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin.css') }}"
+/>
+
+<h2 class="admin-title">Admin Statistics</h2>
+
+<p><strong>Total Aktivitas Tercatat:</strong> {{ total_logs }}</p>
+
+<hr />
+
+<h3>👁️ Produk Paling Sering Dilihat</h3>
+{% if view_stats %}
+<table class="admin-table">
+  <tr>
+    <th>Produk</th>
+    <th>Jumlah Dilihat</th>
+  </tr>
+  {% for product, count in view_stats %}
+  <tr>
+    <td>{{ product }}</td>
+    <td>{{ count }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Belum ada data.</p>
+{% endif %}
+
+<hr />
+
+<h3>🛒 Produk Paling Sering Ditambahkan ke Keranjang</h3>
+{% if cart_stats %}
+<table class="admin-table">
+  <tr>
+    <th>Produk</th>
+    <th>Jumlah Masuk Keranjang</th>
+  </tr>
+  {% for product, count in cart_stats %}
+  <tr>
+    <td>{{ product }}</td>
+    <td>{{ count }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Belum ada data.</p>
+{% endif %}
+
+<a href="/admin/logs" style="display: inline-block; margin-top: 20px">
+  ← Kembali ke Log Aktivitas
+</a>
+
+{% endblock %}
