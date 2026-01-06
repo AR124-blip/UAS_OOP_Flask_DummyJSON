@@ -54,3 +54,6 @@ UAS_OOP_Flask_InBeauty/
 └── css/
 └── style.css
 ****
+
+## ▶️ [Cara Menjalankan Aplikasi (Admin)]
+(http://127.0.0.1:5000/admin/logs)
