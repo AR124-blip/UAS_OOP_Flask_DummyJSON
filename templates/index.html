@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<!-- Hero Banner -->
+<div id="heroCarousel" class="carousel slide mb-4">
+<div class="carousel-inner">
+<div class="carousel-item active">
+<img src="{{ url_for('static', filename='images/banner1.jpg') }}" class="d-block w-100" alt="Banner 1">
+</div>
+<div class="carousel-item">
+<img src="{{ url_for('static', filename='images/banner2.jpg') }}" class="d-block w-100" alt="Banner 2">
+</div>
+</div>
+</div>
+
+
+<h3 class="mb-3">Produk Kecantikan</h3>
+<form method="get" class="mb-4 row">
+<div class="col-md-4">
+<input type="text" name="search" class="form-control" placeholder="Cari produk..." value="{{ request.args.get('search','') }}">
+</div>
+<div class="col-md-3">
+<select name="category" class="form-select">
+{% for cat in categories %}
+<option value="{{ cat }}" {% if request.args.get('category')==cat %}selected{% endif %}>{{ cat|capitalize }}</option>
+{% endfor %}
+</select>
+</div>
+<div class="col-md-3">
+<select name="sort" class="form-select">
+<option value="">Sort</option>
+<option value="price_asc" {% if request.args.get('sort')=='price_asc' %}selected{% endif %}>Harga ↑</option>
+<option value="price_desc" {% if request.args.get('sort')=='price_desc' %}selected{% endif %}>Harga ↓</option>
+<option value="name" {% if request.args.get('sort')=='name' %}selected{% endif %}>Nama</option>
+</select>
+</div>
+<div class="col-md-2">
+<button class="btn btn-primary w-100">Cari</button>
+</div>
+</form>
+
+
+<div class="row">
+{% for p in products %}
+<div class="col-md-4 mb-4">
+<div class="card h-100 shadow-sm product-card">
+<img src="{{ p.thumbnail }}" class="card-img-top product-img">
+<div class="card-body">
+<h5 class="card-title">{{ p.title }}</h5>
+<p class="text-muted">Rp {{ p.price }}</p>
+<a href="/product/{{ p.id }}" class="btn btn-outline-primary btn-sm">Detail</a>
+<a href="/add-to-cart/{{ p.id }}" class="btn btn-success btn-sm">Tambah ke Keranjang</a>
+</div>
+</div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}

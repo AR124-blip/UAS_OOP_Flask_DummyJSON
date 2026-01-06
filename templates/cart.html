@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block content %}
+<h3>Keranjang Belanja</h3>
+{% if cart %}
+<table class="table">
+  <tr>
+    <th>Produk</th>
+    <th>Harga</th>
+    <th>Qty</th>
+    <th>Aksi</th>
+  </tr>
+  {% for item in cart %}
+  <tr>
+    <td><img src="{{ item.thumbnail }}" width="50" /> {{ item.title }}</td>
+    <td>Rp {{ item.price }}</td>
+    <td>
+      <a
+        href="/update-cart/{{ loop.index0 }}/dec"
+        class="btn btn-sm btn-outline-secondary"
+        >-</a
+      >
+      {{ item.quantity }}
+      <a
+        href="/update-cart/{{ loop.index0 }}/inc"
+        class="btn btn-sm btn-outline-secondary"
+        >+</a
+      >
+    </td>
+    <td>
+      <a
+        href="/remove-from-cart/{{ loop.index0 }}"
+        class="btn btn-danger btn-sm"
+        >Hapus</a
+      >
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<p><strong>Total: Rp {{ total }}</strong></p>
+<a href="/" class="btn btn-secondary">← Kembali ke Halaman Utama</a>
+{% else %}
+<p>Keranjang kosong.</p>
+<a href="/" class="btn btn-secondary">← Kembali ke Halaman Utama</a>
+{% endif %} {% endblock %}
